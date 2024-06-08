@@ -190,12 +190,12 @@ struct range_selector
   R& r;
 };
 
-template <size_t...> struct range_selector_maker{};
-template <typename R, size_t ... Cs>
-range_selector<R, Cs...> operator|(R& r, range_selector_maker<Cs...>)
-{
-  return { r };
-}
+template <size_t... Cs> struct range_selector_maker{
+  template <typename R>
+  friend range_selector<R, Cs...> operator|(R& r, range_selector_maker) {
+    return { r };
+  }
+};
 
 template <size_t ... Cs>
 range_selector_maker<Cs...> select() { return {}; }
