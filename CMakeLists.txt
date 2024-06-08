@@ -6,7 +6,7 @@ include(FetchContent)
 FetchContent_Declare(
    columnist
    GIT_REPOSITORY https://github.com/rollbear/columnist
-   GIT_TAG 746d68701ca1b60199e0157ba989d477e5413c21)
+   GIT_TAG 2d7cc6992d2dd2cb3baae2349b087130d456acc2)
 FetchContent_MakeAvailable(columnist)
 
 add_executable(gen gen.cpp)
