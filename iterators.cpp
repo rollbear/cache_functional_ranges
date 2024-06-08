@@ -15,7 +15,6 @@ public:
   struct iterator {
     using value_type = row;
     using difference_type = ssize_t;
-    using iterator_category = std::forward_iterator_tag;
 
     value_type operator*() const {
       return std::invoke([&]<size_t ... Is>(std::index_sequence<Is...>){

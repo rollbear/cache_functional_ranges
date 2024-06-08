@@ -68,7 +68,6 @@ public:
   struct iterator {
     using value_type = row;
     using difference_type = ssize_t;
-    using iterator_category = std::forward_iterator_tag;
 
     value_type operator*() const {
       return { t, offset };
@@ -177,7 +176,6 @@ struct range_selector
   using r_iterator = decltype(std::declval<R&>().begin());
   struct iterator : r_iterator {
     using difference_type = ssize_t;
-    using iterator_category = std::forward_iterator_tag;
     using value_type = decltype(select<Cs...>(*std::declval<r_iterator>()));
     
     iterator(const r_iterator& i) : r_iterator(i) {}
