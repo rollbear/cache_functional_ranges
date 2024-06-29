@@ -37,6 +37,12 @@ target_link_libraries(templated input_data)
 add_executable(filter_templated filter_templated.cpp)
 target_link_libraries(filter_templated input_data)
 
+add_executable(row_id row_id.cpp)
+target_link_libraries(row_id input_data)
+
+add_executable(filter_row_id filter_row_id.cpp)
+target_link_libraries(filter_row_id input_data)
+
 add_executable(iterators iterators.cpp)
 target_link_libraries(iterators input_data)
 
