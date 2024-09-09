@@ -51,16 +51,16 @@ struct std::tuple_size<row<Table, std::index_sequence<Cs...>>> : std::integral_c
 
 template <size_t I, typename ... Ts, size_t ... Cs>
 struct std::tuple_element<I, row<table<Ts...>, std::index_sequence<Cs...>>> {
-  static constexpr std::array indexes = { Cs... };
-  using type = nth_type_t<indexes[I], Ts...>&;
+  static constexpr std::array columns = { Cs... };
+  using type = nth_type_t<columns[I], Ts...>&;
 };
 
 template <typename ... Ts>
 class table
 {
-  using indexes = std::index_sequence_for<Ts...>;
+  using columns = std::index_sequence_for<Ts...>;
 public:
-  using row = ::row<table, indexes>;
+  using row = ::row<table, columns>;
   template <typename, typename>
   friend class ::row;
   struct row_id { size_t offset; };
@@ -92,10 +92,10 @@ public:
   row_id insert(Ts... ts) {
     row_id data_offset { size() };
     auto values = std::forward_as_tuple(ts...);
-    std::invoke([&]<size_t ... Is>(std::index_sequence<Is...>) {
-        (std::get<Is>(data_).push_back(std::get<Is>(values)),...);
+    std::invoke([&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+        (std::get<Cs>(data_).push_back(std::get<Cs>(values)),...);
       },
-      indexes{});
+      columns{});
     if (first_free_.offset == index_.size()) {
       reverse_index_.push_back(first_free_);
       index_.push_back(data_offset);
@@ -116,11 +116,11 @@ public:
       vec[data_offset] = vec.back();
       vec.pop_back();
     };
-    auto move_last = [&]<size_t ... Is>(std::index_sequence<Is...>) {
-      (assign_from_last_and_pop_back(std::integral_constant<size_t, Is>{}),
+    auto move_last = [&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+      (assign_from_last_and_pop_back(std::integral_constant<size_t, Cs>{}),
        ...);
     };
-    std::invoke(move_last, indexes{});
+    std::invoke(move_last, columns{});
     if (data_offset != reverse_index_.size() - 1) {
       reverse_index_[data_offset] = reverse_index_.back();
       index_[reverse_index_[data_offset].offset].offset = data_offset;
@@ -150,9 +150,9 @@ public:
     return reverse_index_[offset].offset == id.offset;
   }
   void reserve(size_t size) {
-    std::invoke([&]<size_t ... Is>(std::index_sequence<Is...>) {
-        (std::get<Is>(data_).reserve(size), ...);
-      }, indexes{});
+    std::invoke([&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+        (std::get<Cs>(data_).reserve(size), ...);
+      }, columns{});
   }
   
   size_t size() const { return std::get<0>(data_).size(); }
@@ -201,19 +201,19 @@ template <size_t ... Cs>
 range_selector_maker<Cs...> select() { return {}; }
 
 template <typename>
-inline constexpr bool row_type_v = false;
+inline constexpr bool is_row_type_v = false;
 
 template <typename T, typename Cs>
-inline constexpr bool row_type_v<row<T,Cs>> = true;
+inline constexpr bool is_row_type_v<row<T,Cs>> = true;
 
 template <typename T>
-concept row_type = row_type_v<T>;
+concept row_type = is_row_type_v<T>;
 
 template <size_t ... Cs, typename F>
 auto select(F&& f)
   requires (! row_type<std::remove_cvref_t<F>>)
 {
-  return [f = std::forward<F>(f)]<typename T, typename Is>(row<T, Is> r)
+  return [f = std::forward<F>(f)](row_type auto r)
     {
       return f(select<Cs...>(r));
     };

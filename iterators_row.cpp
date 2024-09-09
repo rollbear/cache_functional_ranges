@@ -77,10 +77,10 @@ public:
   row_id insert(Ts... ts) {
     row_id data_offset { size() };
     auto values = std::forward_as_tuple(ts...);
-    std::invoke([&]<size_t ... Is>(std::index_sequence<Is...>) {
-        (std::get<Is>(data_).push_back(std::get<Is>(values)),...);
+    std::invoke([&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+        (std::get<Cs>(data_).push_back(std::get<Cs>(values)),...);
       },
-      indexes);
+      columns);
     if (first_free_.offset == index_.size()) {
       reverse_index_.push_back(first_free_);
       index_.push_back(data_offset);
@@ -101,11 +101,11 @@ public:
       vec[data_offset] = vec.back();
       vec.pop_back();
     };
-    auto move_last = [&]<size_t ... Is>(std::index_sequence<Is...>) {
-      (assign_from_last_and_pop_back(std::integral_constant<size_t, Is>{}),
+    auto move_last = [&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+      (assign_from_last_and_pop_back(std::integral_constant<size_t, Cs>{}),
        ...);
     };
-    std::invoke(move_last, indexes);
+    std::invoke(move_last, columns);
     if (data_offset != reverse_index_.size() - 1) {
       reverse_index_[data_offset] = reverse_index_.back();
       index_[reverse_index_[data_offset].offset].offset = data_offset;
@@ -135,15 +135,15 @@ public:
     return reverse_index_[offset].offset == id.offset;
   }
   void reserve(size_t size) {
-    std::invoke([&]<size_t ... Is>(std::index_sequence<Is...>) {
-        (std::get<Is>(data_).reserve(size), ...);
-      }, indexes);
+    std::invoke([&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+        (std::get<Cs>(data_).reserve(size), ...);
+      }, columns);
   }
   
   size_t size() const { return std::get<0>(data_).size(); }
   bool empty() const { return size() == 0; }
 private:
-  static constexpr auto indexes = std::index_sequence_for<Ts...>{};
+  static constexpr auto columns = std::index_sequence_for<Ts...>{};
   std::tuple<std::vector<Ts>...> data_;
   std::vector<row_id> reverse_index_;
   std::vector<row_id> index_;

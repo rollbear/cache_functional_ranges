@@ -27,34 +27,34 @@ public:
   using row = std::tuple<Ts&...>;
   void push_back(Ts... ts) {
     row vs(ts...);
-    std::invoke([&]<size_t ... Is>(std::index_sequence<Is...>) {
-        (std::get<Is>(data_).push_back(std::get<Is>(vs)),...);
+    std::invoke([&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+        (std::get<Cs>(data_).push_back(std::get<Cs>(vs)),...);
       },
-      indexes);
+      columns);
   }
   void pop_back() {
-    std::invoke([&]<size_t ... Is>(std::index_sequence<Is...>) {
-        (std::get<Is>(data_).pop_back(),...);
+    std::invoke([&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+        (std::get<Cs>(data_).pop_back(),...);
       },
-      indexes);
+      columns);
   }
   [[nodiscard]] row operator[](size_t i) {
-    auto access = [&]<size_t ... Is>(std::index_sequence<Is...>) {
-      return row{std::get<Is>(data_)[i]...};
+    auto access = [&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+      return row{std::get<Cs>(data_)[i]...};
     };
-    return std::invoke(access, indexes);
+    return std::invoke(access, columns);
   }
   [[nodiscard]] row back() {
-    return std::invoke([&]<size_t... Is>(std::index_sequence<Is...>) {
-        return row{std::get<Is>(data_).back()...};
+    return std::invoke([&]<size_t... Cs>(std::index_sequence<Cs...>) {
+        return row{std::get<Cs>(data_).back()...};
       },
-      indexes);
+      columns);
   }
   void reserve(size_t size) {
-    std::invoke([&]<size_t ... Is>(std::index_sequence<Is...>) {
-        (std::get<Is>(data_).reserve(size),...);
+    std::invoke([&]<size_t ... Cs>(std::index_sequence<Cs...>) {
+        (std::get<Cs>(data_).reserve(size),...);
       },
-      indexes);
+      columns);
   }
   [[nodiscard]] bool empty() const {
     return std::get<0>(data_).empty();
@@ -64,7 +64,7 @@ public:
   }
   
 private:
-  static constexpr std::index_sequence_for<Ts...> indexes{};
+  static constexpr std::index_sequence_for<Ts...> columns{};
   std::tuple<std::vector<Ts>...> data_;
 };
 
