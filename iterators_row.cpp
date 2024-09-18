@@ -6,20 +6,6 @@
 #include "input_data.hpp"
 #include <cstdlib>
 
-template <size_t I, typename T, typename ... Ts>
-struct nth_type {
-  using type = typename nth_type<I-1, Ts...>::type;
-};
-
-template <typename T, typename ... Ts>
-struct nth_type<0, T, Ts...>
-{
-  using type = T;
-};
-
-template <size_t I, typename ... Ts>
-using nth_type_t = typename nth_type<I, Ts...>::type;
-
 
 template <typename ...>
 struct table;
@@ -29,7 +15,7 @@ struct row {
   using row_id = typename table<Ts...>::row_id;
   row_id id() const { return t->reverse_index_[offset]; }
   template <size_t I>
-  friend nth_type_t<I, Ts...>& get(const row& r) { return std::get<I>(r.t->data_)[r.offset]; }
+  friend Ts...[I]& get(const row& r) { return std::get<I>(r.t->data_)[r.offset]; }
   table<Ts...>* t;
   size_t offset;
 };
@@ -39,7 +25,7 @@ struct std::tuple_size<row<Ts...>> : std::integral_constant<size_t, sizeof...(Ts
 
 template <size_t I, typename ... Ts>
 struct std::tuple_element<I, row<Ts...>> {
-  using type = nth_type_t<I, Ts...>&;
+  using type = Ts...[I]&;
 };
 
 template <typename ... Ts>

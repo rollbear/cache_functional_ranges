@@ -8,20 +8,6 @@
 #include <ranges>
 #include <print>
 #include <array>
-template <size_t I, typename T, typename ... Ts>
-struct nth_type {
-  using type = typename nth_type<I-1, Ts...>::type;
-};
-
-template <typename T, typename ... Ts>
-struct nth_type<0, T, Ts...>
-{
-  using type = T;
-};
-
-template <size_t I, typename ... Ts>
-using nth_type_t = typename nth_type<I, Ts...>::type;
-
 
 template <typename ...>
 struct table;
@@ -39,8 +25,7 @@ struct row<table<Ts...>, std::index_sequence<Cs...>> {
   row_id id() const { return t->reverse_index_[offset]; }
   template <size_t I>
   friend auto& get(const row& r) {
-    static constexpr std::array columns{Cs...};
-    return std::get<columns[I]>(r.t->data_)[r.offset];
+    return std::get<Cs...[I]>(r.t->data_)[r.offset];
   }
   table<Ts...>* t;
   size_t offset;
@@ -51,8 +36,7 @@ struct std::tuple_size<row<Table, std::index_sequence<Cs...>>> : std::integral_c
 
 template <size_t I, typename ... Ts, size_t ... Cs>
 struct std::tuple_element<I, row<table<Ts...>, std::index_sequence<Cs...>>> {
-  static constexpr std::array columns = { Cs... };
-  using type = nth_type_t<columns[I], Ts...>&;
+  using type = Ts...[Cs...[I]]&;
 };
 
 template <typename ... Ts>
@@ -166,8 +150,7 @@ private:
 template <size_t ... Is, typename Table, size_t ... Cs>
 auto select(const row<Table, std::index_sequence<Cs...>>& r)
 {
-  static constexpr size_t columns[] { Cs... };
-  return row<Table, std::index_sequence<columns[Is]...>>(r);
+  return row<Table, std::index_sequence<Cs...[Is]...>>(r);
 }
 
 template <typename R, size_t ... Cs>
