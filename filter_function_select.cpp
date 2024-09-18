@@ -10,7 +10,7 @@
 #include <array>
 
 template <typename ...>
-struct table;
+class table;
 
 template <typename, typename>
 struct row;
@@ -46,7 +46,7 @@ class table
 public:
   using row = ::row<table, columns>;
   template <typename, typename>
-  friend class ::row;
+  friend struct ::row;
   struct row_id { size_t offset; };
   struct sentinel {};
   struct iterator {
@@ -70,7 +70,7 @@ public:
     table* t;
     size_t offset;
   };
-  friend class iterator;
+  friend struct  iterator;
   iterator begin() { return { this, 0 }; }
   sentinel end() const { return {}; }
   row_id insert(Ts... ts) {

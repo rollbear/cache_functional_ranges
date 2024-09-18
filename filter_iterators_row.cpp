@@ -9,7 +9,7 @@
 #include <ranges>
 
 template <typename ...>
-struct table;
+class table;
 
 template <typename ... Ts>
 struct row {
@@ -58,7 +58,7 @@ public:
     table* t;
     size_t offset;
   };
-  friend class iterator;
+  friend struct iterator;
   iterator begin() { return { this, 0 }; }
   sentinel end() const { return {}; }
   row_id insert(Ts... ts) {
