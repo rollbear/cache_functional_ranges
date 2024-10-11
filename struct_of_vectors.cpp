@@ -33,7 +33,7 @@ void drop_if(S& s, P p)
 int main()
 {
   S s;
-  auto size = end_data() - begin_data();
+  auto size = static_cast<size_t>(end_data() - begin_data());
   s.xs.reserve(size);
   s.ys.reserve(size);
   s.zs.reserve(size);

@@ -11,7 +11,7 @@
 
 int main() {
   columnist::table<int,int,int,int> values;
-  values.reserve(end_data() - begin_data());
+  values.reserve(static_cast<size_t>(end_data() - begin_data()));
   for (const auto* p = begin_data(); p != end_data(); ++p) {
     values.insert(p->x, p->y, p->z, p->d);
   }
